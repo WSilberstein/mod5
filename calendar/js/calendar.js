@@ -1,4 +1,4 @@
-var dayNames = ["Monday", "Tuesday", "Wednsday", "Thursday", "Friday", "Saturday", "Sunday"];
+var dayNames = ["Sunday", "Monday", "Tuesday", "Wednsday", "Thursday", "Friday", "Saturday"];
 var currentDate = Date.now();
 const calendar = document.getElementById('calendar-days');
 
@@ -81,19 +81,20 @@ function Month(year, month) {
 
     this.initialize = function() {
 
-        var date = new Date(year, month, 1);
-        var days = [];
+        var date = new Date(year, month + 1, 0);
+        console.log(date);
+        var daysReverse = [];
         var weekDays = [];
         var counter = 1;
         while (date.getMonth() === month) {
-          days.push(new Date(date));
-          this.days.push(new Day(new Date(date)));
+          daysReverse.push(new Date(date));
+          //this.days.push(new Day(new Date(date)));
           weekDays.push(new Day(new Date(date)));
           if(counter != 1 && counter % 7 == 0) {
             this.weeks.push(weekDays);
             weekDays = [];
           }
-          date.setDate(date.getDate() + 1);
+          date.setDate(date.getDate() - 1);
           counter++;
         }
         this.weeks.push(weekDays);
@@ -147,7 +148,8 @@ function Month(year, month) {
        // console.log(daysOfWeek[5]);
         for(var i = 0; i < daysOfWeek.length; i++) {
             var text = document.createElement("p")
-            if(firstDay == 0) {
+           // console.log(dayNames[i])
+         /*   if(firstDay == 0) {
                 text.innerText = "Sunday";
             } else if(firstDay == 1) {
                 text.innerText = "Monday";
@@ -161,9 +163,10 @@ function Month(year, month) {
                 text.innerText = "Friday";
             } else if(firstDay == 6) {
                 text.innerText = "Saturday";
-            }
+            }*/
+            text.innerText = dayNames[i];
             daysOfWeek[i].appendChild(text);
-            console.log(daysOfWeek[i])
+          //  console.log(daysOfWeek[i])
 
             firstDay++;
             if(firstDay > 6) {
