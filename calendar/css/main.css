@@ -5,6 +5,12 @@
     padding: 0px;
 }
 
+.card-day-padding {
+    min-height: 100px !important;
+    min-width: 14% !important;
+    padding: 0px;
+}
+
 .day-number {
     border-bottom: 1px solid #D1D1D1;
     background-color: #CCCCCC;
@@ -20,5 +26,9 @@
 }
 
 .centered {
+    text-align: center;
+}
+
+.struct-day {
     text-align: center;
 }
