@@ -36,7 +36,7 @@ $json_obj = json_decode($json_str, true);
     }
 
     //Connect to database
-    $conn = new mysqli('localhost', 'root', 'william321', 'calendar');
+    $conn = new mysqli('localhost', 'wustl_inst', 'wustl_pass', 'calendar');
 
     if ($conn->connect_error) {
         $arr['sql_connection'] = false;

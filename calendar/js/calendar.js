@@ -1,9 +1,12 @@
 var dayNames = ["Sunday", "Monday", "Tuesday", "Wednsday", "Thursday", "Friday", "Saturday"];
 var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-var currentDate = Date.now();
 var currentMonth = new Date(Date.now()).getMonth();
 var currentYear = new Date(Date.now()).getFullYear();
 const calendar = document.getElementById('calendar-days');
+
+document.addEventListener('DOMContentLoaded', function() {
+    new Month(currentYear, currentMonth).draw();
+})
 
  $('#change_month_right').click(function() {
      if(currentMonth == 11) {
@@ -16,7 +19,6 @@ const calendar = document.getElementById('calendar-days');
     // console.log(currentYear)
      calendar.innerHTML = '';
      var month = new Month(currentYear, currentMonth);
-     month.initialize();
      month.draw();
  })
 
@@ -31,7 +33,6 @@ const calendar = document.getElementById('calendar-days');
    // console.log(currentYear)
     calendar.innerHTML = '';
     var month = new Month(currentYear, currentMonth);
-    month.initialize();
     month.draw();
 })
 
@@ -127,10 +128,6 @@ function Week(days) {
 }
 
 
-var month = new Month(new Date().getFullYear(), new Date().getMonth())
-month.initialize();
-month.draw();
-
 function Month(year, month) {
     this.year = year;
     this.month = month
@@ -186,6 +183,7 @@ function Month(year, month) {
 
     this.draw = function() {
         console.log("Drawing Calendar")
+        this.initialize();
 
         var month = document.getElementById('month');
         month.innerText = monthNames[this.month] + " " + this.year;
