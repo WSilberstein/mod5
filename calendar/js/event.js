@@ -25,8 +25,8 @@ $('#create-event-btn-final').click(function() {
     })
     .then(res => res.json())
     .then(function(text) {
-        console.log(text.session)
-        if(text.session) {
+        console.log(text.nosession)
+        if(text.nosession) {
             showEventError("ERROR: You must be logged in to do this")
         } 
     })

@@ -6,7 +6,7 @@
 
     //Check to make sure user is not already logged in
     if(!isset($_SESSION['user'])) {
-        echo json_encode(array("Nosession" => true));
+        echo json_encode(array("nosession" => true));
         die();
     }
 
