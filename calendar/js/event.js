@@ -11,10 +11,6 @@ $('#create-event-btn-final').click(function() {
     var description = document.getElementById('create-event-description').value;
     var date = document.getElementById('create-event-date').value;
     var color = document.getElementById('create-event-color').value;
-    console.log(title)
-    console.log(description)
-    console.log(date)
-    console.log(color)
 
     const data = {'title': title, 'description': description, 'date': date, 'color': color}
 
@@ -25,10 +21,13 @@ $('#create-event-btn-final').click(function() {
     })
     .then(res => res.json())
     .then(function(text) {
-        console.log(text.nosession)
         if(text.nosession) {
             showEventError("ERROR: You must be logged in to do this")
-        } 
+        } else if(text.date == false) {
+            showEventError("ERROR: Must specify date")
+        } else if(text.success) {
+            hideEventModal();
+        }
     })
     .catch(err => console.error(err));
 })
@@ -40,4 +39,8 @@ function showEventError(error) {
 
 function hideEventError() {
     $('#create-event-error').hide();
+}
+
+function hideEventModal() {
+    $('#create-event-modal').modal('hide')
 }

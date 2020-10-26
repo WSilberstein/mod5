@@ -10,20 +10,69 @@
         die();
     }
 
-        //connect to database with wustl user
-        $conn = new mysqli('localhost', 'wustl_inst', 'wustl_pass', 'calendar');
-
-
-
-        //exit if connection fails
-        if ($conn->connect_error) {
-            $arr['sql connection'] = false;
-            echo json_encode($arr);
-            die();
-        }
 
     $arr = array();
+    $title = 'Untitled Event';
+    $description = '';
+    $date = '';
+    $color = '';
+    
+    $json_str = file_get_contents('php://input');
+    //This will store the data into an associative array
+    $json_obj = json_decode($json_str, true);
 
-    echo json_encode(array("success" => true));
+    if($json_obj['date'] != '') {
+        $date = $json_obj['date'];
+        $arr['date'] = $date;
+    } else {
+        $arr['date'] = false;
+        echo json_encode($arr);
+        die();
+    }
+
+    if($json_obj['title'] != '') {
+        $title = $json_obj['title'];
+        $arr['title'] = $title;
+    } else {
+        $arr['title'] = false;
+    }
+
+    if($json_obj['description'] != '') {
+        $description = $json_obj['description'];
+        $arr['description'] = $description;
+    } else {
+        $arr['description'] = false;
+    }
+
+    if($json_obj['color'] != '') {
+        $color = $json_obj['color'];
+        $arr['color'] = $color;
+    } else {
+        $arr['color'] = false;
+    }
+
+    
+    //connect to database with wustl user
+    $conn = new mysqli('localhost', 'wustl_inst', 'wustl_pass', 'calendar');
+
+
+
+    //exit if connection fails
+    if ($conn->connect_error) {
+        $arr['sql connection'] = false;
+        echo json_encode($arr);
+        die();
+    }
+
+
+    $query = $conn->prepare('INSERT INTO events (user, title, description, date, color) values (?, ?, ?, ?, ?)');
+    $query->bind_param("sssss", $_SESSION['user'], $title, $description, $date, $color);
+    if($query->execute()) {
+        $arr['success'] = true;
+    } else {
+        $arr['success'] = false;
+    }
+
+    echo json_encode($arr);
 
 ?>

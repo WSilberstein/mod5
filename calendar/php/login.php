@@ -23,7 +23,7 @@
     //$arr['already logged in'] = false;
 
     //connect to database with wustl user
-    $conn = new mysqli('localhost', 'root', 'william321', 'calendar');
+    $conn = new mysqli('localhost', 'wustl_inst', 'wustl_pass', 'calendar');
 
 
 

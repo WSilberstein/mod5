@@ -1,4 +1,5 @@
 var login = true;
+var user = '';
 
 $(document).ready(function() {
     $('.modal-register-active').hide();
@@ -97,6 +98,7 @@ function getSession(event) {
     .then(res => res.json())
     .then(function(text) {
         if(text.session != false) {
+            user = text.session
             updatePageLoginBtn(true, text.session)
         } else {
             updatePageLoginBtn(false, text.session)
