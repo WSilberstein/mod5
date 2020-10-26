@@ -129,6 +129,56 @@
     </div>
   </div>
 
+  <!-- Edit Event Modal -->
+  <div class="modal fade" id="edit-event-modal" tabindex="-1" aria-labelledby="edit-event-modal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Edit Event</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="alert alert-danger" id="edit-event-error" role="alert"></div>
+            <div class="input-group mb-3">
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" id="edit-event-title" placeholder="Add title">
+                </div>
+            </div>
+            <div class="input-group mb-3">
+                <div class="col-sm-12">
+                    <textarea id="edit-event-description" placeholder="description" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="input-group mb-3">
+                <div class="col-sm-8">
+                    <input type="datetime-local" class="form-control" id="edit-event-date">
+                </div>
+                <div class="col-sm-4">
+                    <select id="edit-event-color" class="form-control">
+                        <option style="background-color: red;"selected>Red</option>
+                        <option style="background-color: orange;">Orange</option>
+                        <option style="background-color: yellow;">Yellow</option>
+                        <option style="background-color: Green;">Green</option>
+                        <option style="background-color: Purple;">Purple</option>
+                        <option style="background-color: Blue;">Blue</option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="input-group mb-3">
+                <div class="col-sm-12">
+                    <input type="hidden" id="edit-event-id">
+                    <button type="submit" style="width: 100%;" class="btn btn-success" id="edit-event-btn-final">Create</button>
+                </div>
+
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <div class="alert alert-success alert-dismissible fade show" id="login-success" style="display: none;" role="alert"><p>SUCCESS: You are now logged in!</p>
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
@@ -175,9 +225,9 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-  <script src="js/login.js"></script>
-  <script src="js/calendar.js"></script>
-  <script src="js/event.js"></script>
+  <script type="text/javascript" src="js/login.js"></script>
+  <script type="text/javascript" src="js/calendar.js"></script>
+  <script type="text/javascript" src="js/event.js"></script>
 
     </body>
     </html>

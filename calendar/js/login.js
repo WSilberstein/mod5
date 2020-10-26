@@ -51,6 +51,7 @@ function loginAjax(event) {
                 if(text.session != false) {
                     updatePageLoginBtn(true, text.session)
                     showLoginSuccess();
+                    updateCalendar();
                 } else {
                     updatePageLoginBtn(false, text.session)
                 }
@@ -136,6 +137,7 @@ function logout() {
     .then(function(text) {
         updatePageLoginBtn(false, null)
         showLogoutSuccess();
+        updateCalendar();
     });
 }
 
@@ -163,4 +165,9 @@ function showLoginSuccess() {
 
 function showLogoutSuccess() {
     $('#logout-success').show();
+}
+
+function updateCalendar() {
+    document.getElementById('calendar-days').innerHTML = '';
+    getUserEvents()
 }

@@ -4,9 +4,35 @@ var currentMonth = new Date(Date.now()).getMonth();
 var currentYear = new Date(Date.now()).getFullYear();
 const calendar = document.getElementById('calendar-days');
 
+
 document.addEventListener('DOMContentLoaded', function() {
-    new Month(currentYear, currentMonth).draw();
+    getUserEvents()
 })
+
+function getUserEvents() {
+    var arr = []
+    fetch("php/getEvents.php", {
+        method: 'POST'
+    })
+    .then(res => res.json())
+    .then(function(text) {
+        if(!text.nosession) {
+            var allUserEvents = [];
+            //console.log(text)
+            text.forEach(function(event) {
+                arr.push(event);
+                allUserEvents.push(event);
+               // console.log(allUserEvents)
+            })
+            new Month(currentYear, currentMonth, allUserEvents).draw();
+            //console.log(allUserEvents)
+        } else {
+            new Month(currentYear, currentMonth, null).draw();
+        }
+    });
+
+
+}
 
  $('#change_month_right').click(function() {
      if(currentMonth == 11) {
@@ -18,8 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // console.log(currentMonth)
     // console.log(currentYear)
      calendar.innerHTML = '';
-     var month = new Month(currentYear, currentMonth);
-     month.draw();
+     getUserEvents()
  })
 
  $('#change_month_left').click(function() {
@@ -32,8 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
     //console.log(currentMonth)
    // console.log(currentYear)
     calendar.innerHTML = '';
-    var month = new Month(currentYear, currentMonth);
-    month.draw();
+    getUserEvents()
 })
 
 function Day(date, events) {
@@ -70,7 +94,78 @@ function Day(date, events) {
        return container
     }
 
+    this.drawEvent = function(node) {
+        var eventDiv = document.createElement('div');
+        eventDiv.classList.add("events");
+        var date = this.date;
+        this.events.forEach(function(event) {
+
+            if(new Date(date).getYear() == new Date(event.date).getYear() && new Date(date).getMonth() == new Date(event.date).getMonth() && new Date(date).getDate() == new Date(event.date).getDate()) {
+                var eventDate = event.date;
+                var eventTitle = event.title;
+                var color = event.color;
+                var id = event.id;
+                var description = event.description;
+               // console.log("Match")
+                var event = document.createElement('div');
+                var title = document.createElement("p");
+                var time = document.createElement("p");
+                var idInput = document.createElement("input");
+                var fullDate = document.createElement("input");
+                var desc = document.createElement("input")
+
+                title.classList.add("no-margin");
+                time.classList.add("no-margin");
+                event.classList.add("centered");
+                event.classList.add("event");
+
+                event.style.cssText = "background-color: " + color;
+
+                title.innerText = eventTitle;
+                time.innerText = eventDate.substr(11, 5);
+                idInput.value = id;
+                fullDate.value = eventDate;
+                desc.value = description;
+
+                idInput.style.cssText = "display: none";
+                fullDate.style.cssText = "display: none";
+                desc.style.cssText = "display: none";
+
+                event.appendChild(title);
+                event.appendChild(time);
+                event.appendChild(idInput);
+                event.appendChild(fullDate);
+                event.appendChild(desc)
+
+                eventDiv.appendChild(event);
+
+                event.addEventListener('click', function() {
+                    var title = this.childNodes[0].innerHTML;
+                    var id = this.childNodes[2].value;
+                    var date = this.childNodes[3].value;
+                    var desc = this.childNodes[4].value;
+                    var descReplace = date.replace(/ /g, 'T')
+                    // MAY THROW ERROR LATER WITH COLOR
+                    var color = $(this).css('background-color');
+                    document.getElementById('edit-event-title').value = title
+                    document.getElementById('edit-event-description').innerText = desc
+                    document.getElementById('edit-event-date').value = descReplace;
+                    document.getElementById('edit-event-id').value = id;
+
+                    //May throw error later
+                    document.getElementById('edit-event-color').value = color;
+                    $("#edit-event-modal").modal('show');
+
+                    
+                })
+               
+            }
+        })
+        node.appendChild(eventDiv)
+    }
+
     this.draw = function(node) {
+       // console.log(this.date);
       //  console.log("Drawing day: " + new Date(date).toDateString())
         var container = document.createElement("div");
         var numberContainer = document.createElement("div");
@@ -84,6 +179,7 @@ function Day(date, events) {
         //Add events to day
 
         container.appendChild(numberContainer);
+        this.drawEvent(container);
        return container
     }
 }
@@ -91,8 +187,9 @@ function Day(date, events) {
 
 
 
-function Week(days) {
+function Week(days, events) {
     this.days = days;
+    this.events = events;
 
     this.getDay = function(day){
         return days[day];
@@ -128,11 +225,12 @@ function Week(days) {
 }
 
 
-function Month(year, month) {
+function Month(year, month, events) {
     this.year = year;
     this.month = month
     this.weeks = [];
     this.days = [];
+    this.events = events
 
     this.initialize = function() {
 
@@ -156,7 +254,7 @@ function Month(year, month) {
         for(var i = daysReverse.length - 1; i >= 0; i--) {
            // console.log(daysReverse[i])
             this.days.push(daysReverse[i])
-            weekDays.push(new Day(new Date(daysReverse[i])));
+            weekDays.push(new Day(new Date(daysReverse[i]), this.events));
             if(new Date(daysReverse[i]).getDay() == 6) {
                 //console.log(weekDays)
                 this.weeks.push(weekDays);

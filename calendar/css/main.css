@@ -36,3 +36,11 @@ nav {
 .struct-day {
     text-align: center;
 }
+
+.event {
+    border: 1px solid black;
+}
+
+.no-margin {
+    margin: 0;
+}
