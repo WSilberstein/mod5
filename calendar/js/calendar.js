@@ -3,6 +3,7 @@ var monthNames = ["January", "February", "March", "April", "May", "June", "July"
 var currentMonth = new Date(Date.now()).getMonth();
 var currentYear = new Date(Date.now()).getFullYear();
 const calendar = document.getElementById('calendar-days');
+var currentEvent = '';
 
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -29,6 +30,39 @@ function getUserEvents() {
         } else {
             new Month(currentYear, currentMonth, null).draw();
         }
+
+
+        var e = $('.event').draggable({
+            containment: 'document',
+            zIndex: 100,
+            helper: 'clone',
+            start: function(event, ui) {
+                currentEvent = $(this);
+                console.log("Dragging");
+            },
+
+            stop: function(event, ui) {
+                //$(this).detach();
+             //   $('#calendar').append($(this));
+            }
+        });
+        
+        $('.card-day').droppable({
+            over: function(event, ui) {
+                $(this).css('background-color', '#CCCCCC')
+                console.log(currentEvent)
+            },
+
+            out: function(event, ui) {
+                $(this).css('background-color', 'white')
+            },
+
+            drop: function(event, ui) {
+                console.log(currentEvent)
+                $(this).css('background-color', 'white')
+                $(this).append(currentEvent);
+            }
+        });
     });
 
 
@@ -137,6 +171,7 @@ function Day(date, events) {
                 event.appendChild(fullDate);
                 event.appendChild(desc)
 
+
                 eventDiv.appendChild(event);
 
                 event.addEventListener('click', function() {
@@ -158,6 +193,8 @@ function Day(date, events) {
 
                     
                 })
+
+
                
             }
         })
