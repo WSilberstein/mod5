@@ -13,6 +13,13 @@
 
     $arr = array();
 
+    $json_str = file_get_contents('php://input');
+    //This will store the data into an associative array
+    $json_obj = json_decode($json_str, true);
+
+    $id = $json_obj['id'];
+
+    
     //connect to database with wustl user
     $conn = new mysqli('localhost', 'wustl_inst', 'wustl_pass', 'calendar');
 
@@ -25,20 +32,13 @@
         die();
     }
 
-    $query = $conn->prepare('SELECT * FROM events WHERE userId="'.$_SESSION['userid'].'"');
 
-    $query->execute();
-    $result = $query->get_result();
-    while($row = $result->fetch_assoc()) {
-        array_push($arr, $row);
-    }
-
-    $query = $conn->prepare('SELECT * FROM events WHERE shareId=(?)');
-    $query->bind_param("i", $_SESSION['userid']);
-    $query->execute();
-    $result = $query->get_result();
-    while($row = $result->fetch_assoc()) {
-        array_push($arr, $row);
+    $query = $conn->prepare('DELETE FROM events WHERE id=(?)');
+    $query->bind_param("i", $id);
+    if($query->execute()) {
+        $arr['success'] = true;
+    } else {
+        $arr['success'] = false;
     }
 
     echo json_encode($arr);

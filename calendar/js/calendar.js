@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function getUserEvents() {
     var arr = []
+    calendar.innerHTML = '';
     fetch("php/getEvents.php", {
         method: 'POST'
     })
@@ -31,26 +32,20 @@ function getUserEvents() {
             new Month(currentYear, currentMonth, null).draw();
         }
 
-
         var e = $('.event').draggable({
             containment: 'document',
             zIndex: 100,
             helper: 'clone',
             start: function(event, ui) {
                 currentEvent = $(this);
-                console.log("Dragging");
-            },
-
-            stop: function(event, ui) {
-                //$(this).detach();
-             //   $('#calendar').append($(this));
+              //  console.log("Dragging");
             }
         });
         
         $('.card-day').droppable({
             over: function(event, ui) {
                 $(this).css('background-color', '#CCCCCC')
-                console.log(currentEvent)
+               // console.log(currentEvent)
             },
 
             out: function(event, ui) {
@@ -58,9 +53,17 @@ function getUserEvents() {
             },
 
             drop: function(event, ui) {
-                console.log(currentEvent)
                 $(this).css('background-color', 'white')
                 $(this).append(currentEvent);
+                var number = parseInt($(this).children()[0].childNodes[0].textContent);
+                console.log(number)
+                var newDate = String($(currentEvent).children()[3].value).replace(/\b-\d+ \b/g, '-' + number + ' ');
+                var title = $(currentEvent).children()[0].innerText;
+                var id = $(currentEvent).children()[2].value;
+                var desc = $(currentEvent).children()[4].value;
+                var color = $(currentEvent).css('background-color');
+
+                editEvent(id, title, desc, newDate, color, "asdf@asdf.com");
             }
         });
     });
@@ -186,6 +189,7 @@ function Day(date, events) {
                     document.getElementById('edit-event-description').innerText = desc
                     document.getElementById('edit-event-date').value = descReplace;
                     document.getElementById('edit-event-id').value = id;
+                    document.getElementById('delete-event-id').value = id;
 
                     //May throw error later
                     document.getElementById('edit-event-color').value = color;

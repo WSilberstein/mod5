@@ -16,6 +16,7 @@
     $description = '';
     $date = '';
     $color = '';
+    $shareUser = '';
     
     $json_str = file_get_contents('php://input');
     //This will store the data into an associative array
@@ -51,6 +52,27 @@
         $arr['color'] = false;
     }
 
+    if($json_obj['shareUser'] != '') {
+        $shareUser = $json_obj['shareUser'];
+        $arr['shareUser'] = $shareUser;
+    } else {
+        $arr['shareUser'] = false;
+    }
+
+    //validate email is in correct format
+    $email_regex = "/^[\w!#$%&'*+\/=?^_`{|}~-]+@([\w\-]+(?:\.[\w\-]+)+)$/";
+    if(!preg_match($email_regex, $shareUser, $matches)){
+
+        $arr['incorrect share email format'] = true;
+        $shareUser = '';
+    }
+
+    if($shareUser == $_SESSION['user']) {
+        $shareUser = '';
+    }
+
+
+
     
     //connect to database with wustl user
     $conn = new mysqli('localhost', 'wustl_inst', 'wustl_pass', 'calendar');
@@ -64,9 +86,22 @@
         die();
     }
 
-
-    $query = $conn->prepare('INSERT INTO events (user, title, description, date, color) values (?, ?, ?, ?, ?)');
-    $query->bind_param("sssss", $_SESSION['user'], $title, $description, $date, $color);
+    $query = $conn->prepare('SELECT id FROM users WHERE email=(?)');
+    $query->bind_param("s", $shareUser);
+    $userId = -1;
+    if($query->execute()) {
+        $result = $query->get_result();
+        while($row = $result->fetch_assoc()) {
+            $userId = $row['id'];
+        }
+        $arr['shareUser Found'] = true;
+    } else {
+        $result = 0;
+        $arr['shareUser Not Found'] = false;
+    }
+    
+    $query = $conn->prepare('INSERT INTO events (userid, title, description, date, color, shareId) values (?, ?, ?, ?, ?, ?)');
+    $query->bind_param("issssi", $_SESSION['userid'], $title, $description, $date, $color, $userId);
     if($query->execute()) {
         $arr['success'] = true;
     } else {
