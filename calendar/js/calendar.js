@@ -20,14 +20,11 @@ function getUserEvents() {
     .then(function(text) {
         if(!text.nosession) {
             var allUserEvents = [];
-            //console.log(text)
             text.forEach(function(event) {
                 arr.push(event);
                 allUserEvents.push(event);
-               // console.log(allUserEvents)
             })
             new Month(currentYear, currentMonth, allUserEvents).draw();
-            //console.log(allUserEvents)
         } else {
             new Month(currentYear, currentMonth, null).draw();
         }
@@ -38,14 +35,12 @@ function getUserEvents() {
             helper: 'clone',
             start: function(event, ui) {
                 currentEvent = $(this);
-              //  console.log("Dragging");
             }
         });
         
         $('.card-day').droppable({
             over: function(event, ui) {
                 $(this).css('background-color', '#CCCCCC')
-               // console.log(currentEvent)
             },
 
             out: function(event, ui) {
@@ -56,7 +51,6 @@ function getUserEvents() {
                 $(this).css('background-color', 'white')
                 $(this).append(currentEvent);
                 var number = parseInt($(this).children()[0].childNodes[0].textContent);
-                console.log(number)
                 var newDate = String($(currentEvent).children()[3].value).replace(/\b-\d+ \b/g, '-' + number + ' ');
                 var title = $(currentEvent).children()[0].innerText;
                 var id = $(currentEvent).children()[2].value;
@@ -78,8 +72,6 @@ function getUserEvents() {
      } else {
         currentMonth++;
      }
-    // console.log(currentMonth)
-    // console.log(currentYear)
      calendar.innerHTML = '';
      getUserEvents()
  })
@@ -91,8 +83,6 @@ function getUserEvents() {
     } else {
        currentMonth--;
     }
-    //console.log(currentMonth)
-   // console.log(currentYear)
     calendar.innerHTML = '';
     getUserEvents()
 })
@@ -143,7 +133,6 @@ function Day(date, events) {
                 var color = event.color;
                 var id = event.id;
                 var description = event.description;
-               // console.log("Match")
                 var event = document.createElement('div');
                 var title = document.createElement("p");
                 var time = document.createElement("p");
@@ -206,8 +195,6 @@ function Day(date, events) {
     }
 
     this.draw = function(node) {
-       // console.log(this.date);
-      //  console.log("Drawing day: " + new Date(date).toDateString())
         var container = document.createElement("div");
         var numberContainer = document.createElement("div");
         container.classList.add("card-day");
@@ -245,21 +232,16 @@ function Week(days, events) {
     }
 
     this.draw = function(days) {
-      //  console.log(this.days)
-        //console.log((this.days[0].date))
         var row = document.createElement("div");
         row.classList.add('row');
         if(new Date(this.days[0].date).getDay() != 0) {
             for(var i = 0; i < new Date(this.days[0].date).getDay(); i++) {
-                //console.log("Create padding")
                 row.appendChild(this.days[0].drawPadding(row))
             }
-            //console.log("DOES NOT START ON SUNDAY")
         }
         
         this.days.forEach(function(day) {
             row.appendChild(day.draw(row))
-           // console.log(day.draw(row))
         })
         calendar.appendChild(row);
     }
@@ -276,28 +258,19 @@ function Month(year, month, events) {
     this.initialize = function() {
 
         var date = new Date(year, month + 1, 0);
-        //console.log(date);
         var daysReverse = [];
         var weekDays = [];
         var counter = 1;
         while (date.getMonth() === month) {
           daysReverse.push(new Date(date));
-          //this.days.push(new Day(new Date(date)));
-         /* weekDays.push(new Day(new Date(date)));
-          if(counter != 1 && counter % 7 == 0) {
-            this.weeks.push(weekDays);
-            weekDays = [];
-          }*/
           date.setDate(date.getDate() - 1);
           counter++;
         }
 
         for(var i = daysReverse.length - 1; i >= 0; i--) {
-           // console.log(daysReverse[i])
             this.days.push(daysReverse[i])
             weekDays.push(new Day(new Date(daysReverse[i]), this.events));
             if(new Date(daysReverse[i]).getDay() == 6) {
-                //console.log(weekDays)
                 this.weeks.push(weekDays);
                 weekDays = [];
             }
@@ -305,7 +278,6 @@ function Month(year, month, events) {
 
 
         this.weeks.push(weekDays);
-       // console.log(this.weeks);
     }
 
     this.getWeek = function(week) {
@@ -321,7 +293,6 @@ function Month(year, month, events) {
     }
 
     this.draw = function() {
-        console.log("Drawing Calendar")
         this.initialize();
 
         var month = document.getElementById('month');

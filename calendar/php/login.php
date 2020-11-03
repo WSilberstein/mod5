@@ -3,10 +3,9 @@
     ini_set("session.cookie_httponly", 1);
 
     session_start();
-    session_name('logged in');
-
-    
+ 
     header("Content-Type: application/json");
+
     $arr = array();
 
 
@@ -37,13 +36,8 @@
         die();
     }
 
-
-
-    //$arr['sql connection'] = true;
-
     //Make sure email is filled out
     if(isset($email)) {
-       // $arr['email given'] = true;
 
         //validate email is in correct format
         $email_regex = "/^[\w!#$%&'*+\/=?^_`{|}~-]+@([\w\-]+(?:\.[\w\-]+)+)$/";
@@ -62,12 +56,10 @@
             //Check to see if email given matches any emails in database
             $emails = [];
             if($row['email'] == $email) {
-
-                //$arr['email correct'] = true;
                 
                 //Check to see if password was given
                 if(isset($password)) {
-                    //$arr['password given'] = true;
+
                     //Hash password
                     $_Password = password_hash($password, PASSWORD_DEFAULT);
 
@@ -81,11 +73,9 @@
 
                             //Set the session variable at 'user' to equal users email (log them in)
                             $_SESSION['user'] = mysqli_real_escape_string($conn, $row['email']);
-                           // echo "<p>User is logged in</p>";
 
                             //Set the session userid variable to user's id
                             $_SESSION['userid'] = $rowPassword['id'];
-                           // echo $_SESSION['userid'];
 
                             //Add token to user's session to prevent CSRF attack
                             $_SESSION['token'] = bin2hex(random_bytes(32));
@@ -106,12 +96,9 @@
                 } else {
                     $arr['password given'] = false;
                 }
-            } else {
-
-                
             }
-
         }
+
         //Let user know that email or password does not exist
         $arr['email correct'] = false;
     } else {
@@ -119,7 +106,4 @@
     }
 
     echo json_encode($arr);
-
-
-
 ?>

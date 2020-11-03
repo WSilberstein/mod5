@@ -3,23 +3,24 @@
     ini_set("session.cookie_httponly", 1);
 
     session_start();
-    session_name('logged in');
 
     header("Content-Type: application/json");
+    
+    //Check to make sure HTTP User Agent is consistent
+    $previous_ua = @$_SESSION['useragent'];
+    $current_ua = $_SERVER['HTTP_USER_AGENT'];
+
+    if(isset($_SESSION['useragent']) && $previous_ua !== $current_ua){
+        echo json_encode(array("Session hijack detected" => true));
+        die("Session hijack detected");
+    }else{
+        $_SESSION['useragent'] = $current_ua;
+    }
 
     //Check to make sure user is not already logged in
     if(!isset($_SESSION['user'])) {
         echo json_encode(array("nosession" => true));
         die();
-    }
-
-    $previous_ua = @$_SESSION['useragent'];
-    $current_ua = $_SERVER['HTTP_USER_AGENT'];
-
-    if(isset($_SESSION['useragent']) && $previous_ua !== $current_ua){
-        die("Session hijack detected");
-    }else{
-        $_SESSION['useragent'] = $current_ua;
     }
 
 
@@ -28,13 +29,28 @@
     $title = 'Untitled Event';
     $description = '';
     $date = '';
-    $color = '';
+    $color = 'white';
     $shareUser = '';
+    $token = '';
     
     $json_str = file_get_contents('php://input');
     //This will store the data into an associative array
     $json_obj = json_decode($json_str, true);
 
+    //Get token if given
+    if($json_obj['token'] != '') {
+        $token = $json_obj['token'];
+    }
+
+    //Verify token to prevent CSRF attack
+    if($token != $_SESSION['token']) {
+        echo json_encode(array("Invalid Token" => true));
+        die();
+    } else { 
+        $arr['token'] = true;
+    }
+
+    //Get Data object if exists
     if($json_obj['date'] != '') {
         $date = $json_obj['date'];
         $arr['date'] = $date;
@@ -44,6 +60,7 @@
         die();
     }
 
+    //Get ID if exists
     if($json_obj['id'] != '') {
         $id = $json_obj['id'];
         $arr['id'] = $id;
@@ -53,6 +70,7 @@
         die();
     }
 
+    //Get title if exists
     if($json_obj['title'] != '') {
         $title = $json_obj['title'];
         $arr['title'] = $title;
@@ -60,6 +78,7 @@
         $arr['title'] = false;
     }
 
+    //Get description if exists
     if($json_obj['description'] != '') {
         $description = $json_obj['description'];
         $arr['description'] = $description;
@@ -67,9 +86,7 @@
         $arr['description'] = false;
     }
 
-    
-    $red = 'red';
-
+    //Get color if exists
     if($json_obj['color'] != '') {
         $color = $json_obj['color'];
         $arr['color'] = $color;
@@ -77,13 +94,15 @@
         $arr['color'] = false;
     }
 
+    //Get shared user if exists
     if($json_obj['shareUser'] != '') {
         $shareUser = $json_obj['shareUser'];
         $arr['shareUser'] = $shareUser;
     } else {
         $arr['shareUser'] = "false";
     }
-    //validate email is in correct format
+
+    //validate shared user email is in correct format
     $email_regex = "/^[\w!#$%&'*+\/=?^_`{|}~-]+@([\w\-]+(?:\.[\w\-]+)+)$/";
     if(!preg_match($email_regex, $shareUser, $matches)){
 
@@ -91,16 +110,13 @@
         $shareUser = '';
     }
 
+    //Prevent user from sharing with themselves
     if($shareUser == $_SESSION['user']) {
         $shareUser = '';
     }
 
-
-    
     //connect to database with wustl user
     $conn = new mysqli('localhost', 'wustl_inst', 'wustl_pass', 'calendar');
-
-
 
     //exit if connection fails
     if ($conn->connect_error) {
@@ -109,6 +125,7 @@
         die();
     }
 
+    //Check if shared user exists in database
     $query = $conn->prepare('SELECT id FROM users WHERE email=(?)');
     $query->bind_param("s", $shareUser);
     $userId = -1;
@@ -123,8 +140,9 @@
         $arr['shareUser Not Found'] = false;
     }
 
-    $query = $conn->prepare('UPDATE events SET title=(?), description=(?), date=(?), color=(?), shareId=(?) WHERE id='.$id);
-    $query->bind_param("ssssi", $title, $description, $date, $color, $userId);
+    //Update event with new values
+    $query = $conn->prepare('UPDATE events SET title=(?), description=(?), date=(?), color=(?), shareId=(?) WHERE id=(?) AND userid=(?)');
+    $query->bind_param("ssssiii", $title, $description, $date, $color, $userId, $id, $_SESSION['userid']);
     if($query->execute()) {
         $arr['success'] = true;
     } else {
