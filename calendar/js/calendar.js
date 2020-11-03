@@ -182,6 +182,7 @@ function Day(date, events) {
 
                     //May throw error later
                     document.getElementById('edit-event-color').value = color;
+                    hideEventEditError()
                     $("#edit-event-modal").modal('show');
 
                     

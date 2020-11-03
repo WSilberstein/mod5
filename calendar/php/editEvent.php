@@ -103,16 +103,19 @@
     }
 
     //validate shared user email is in correct format
-    $email_regex = "/^[\w!#$%&'*+\/=?^_`{|}~-]+@([\w\-]+(?:\.[\w\-]+)+)$/";
-    if(!preg_match($email_regex, $shareUser, $matches)){
+    if($shareUser != '') {
+        $email_regex = "/^[\w!#$%&'*+\/=?^_`{|}~-]+@([\w\-]+(?:\.[\w\-]+)+)$/";
+        if(!preg_match($email_regex, $shareUser, $matches)){
 
-        $arr['incorrect share email format'] = true;
-        $shareUser = '';
+            $arr['incorrect_share_email_format'] = true;
+            $shareUser = '';
+        }
     }
 
     //Prevent user from sharing with themselves
     if($shareUser == $_SESSION['user']) {
         $shareUser = '';
+        $arr['shared_with_self'] = true;
     }
 
     //connect to database with wustl user
@@ -125,19 +128,24 @@
         die();
     }
 
-    //Check if shared user exists in database
-    $query = $conn->prepare('SELECT id FROM users WHERE email=(?)');
-    $query->bind_param("s", $shareUser);
     $userId = -1;
-    if($query->execute()) {
-        $result = $query->get_result();
-        while($row = $result->fetch_assoc()) {
-            $userId = $row['id'];
+
+    //Verify if shared user exists
+    if($shareUser != '') {
+        $query = $conn->prepare('SELECT id FROM users WHERE email=(?)');
+        $query->bind_param("s", $shareUser);
+        if($query->execute()) {
+            $result = $query->get_result();
+            while($row = $result->fetch_assoc()) {
+                $userId = $row['id'];
+            }
+            $arr['shareUser Found'] = true;
         }
-        $arr['shareUser Found'] = true;
-    } else {
-        $result = 0;
-        $arr['shareUser Not Found'] = false;
+
+        if($userId == -1) {
+            $result = 0;
+            $arr['shareUser_Not_Found'] = true;
+        }
     }
 
     //Update event with new values

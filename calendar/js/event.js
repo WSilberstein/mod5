@@ -67,6 +67,7 @@ $('#create-event-btn-final').click(function() {
     .catch(err => console.error(err));
 })
 
+//Edits event when edit event button clicked
 $('#edit-event-btn-final').click(function() {
     var id = document.getElementById('edit-event-id').value;
     var title = document.getElementById('edit-event-title').value;
@@ -78,6 +79,7 @@ $('#edit-event-btn-final').click(function() {
     editEvent(id, title, description, date, color, shareUser);
 })
 
+//Function to edit events with new given information
 function editEvent(id, title, description, date, color, shareUser) {
     const data = {'id': id, 'title': title, 'description': description, 'date': date, 'color': color, 'shareUser': shareUser, 'token': token}
 
@@ -88,12 +90,21 @@ function editEvent(id, title, description, date, color, shareUser) {
     })
     .then(res => res.json())
     .then(function(text) {
+
+        //Display errors if unsuccessful
         if(text.nosession) {
-            showEventError("ERROR: You must be logged in to do this")
+            showEventEditError("ERROR: You must be logged in to do this")
         } else if(text.date == false) {
-            showEventError("ERROR: Must specify date")
+            showEventEditError("ERROR: Must specify date")
+        } else if(text.incorrect_share_email_format) {
+            showEventEditError("ERROR: Invalid email format")
+        } else if(text.shareUser_Not_Found) {
+            showEventEditError("ERROR: User does not exist")
+        } else if(text.shared_with_self) {
+            showEventEditError("ERROR: Cannot share event with yourself")
         } else if(text.success) {
 
+            //Update Calendar if successful
             if($('#edit-event-modal').is(':visible')) {
                 updateCalendar();
                 hideEditEventModal();
@@ -105,19 +116,35 @@ function editEvent(id, title, description, date, color, shareUser) {
     .catch(err => console.error(err));
 }
 
+//Function to show event error
 function showEventError(error) {
     $('#create-event-error').text(error)
     $('#create-event-error').show();
 }
 
+//Function to show error on edit event modal
+function showEventEditError(error) {
+    $('#edit-event-error').text(error)
+    $('#edit-event-error').show();
+}
+
+//Function to hide event error
 function hideEventError() {
     $('#create-event-error').hide();
 }
 
+//Function to hide edit event error
+function hideEventEditError() {
+    $('#edit-event-error').hide();
+}
+
+
+//Function to hide edit event modal
 function hideEditEventModal() {
     $('#edit-event-modal').modal('hide');
 }
 
+//Function to hide event modal
 function hideEventModal() {
     $('#create-event-modal').modal('hide')
 }
