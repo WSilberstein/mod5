@@ -1,6 +1,9 @@
 <?php
 
+    ini_set("session.cookie_httponly", 1);
+
     session_start();
+    session_name('logged in');
 
     header("Content-Type: application/json");
 
@@ -9,6 +12,15 @@
         echo json_encode(array("nosession" => true));
         die();
     }
+
+    $previous_ua = @$_SESSION['useragent'];
+    $current_ua = $_SERVER['HTTP_USER_AGENT'];
+
+    if(isset($_SESSION['useragent']) && $previous_ua !== $current_ua){
+	    die("Session hijack detected");
+    }else{
+	$_SESSION['useragent'] = $current_ua;
+}
 
 
     $arr = array();

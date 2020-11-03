@@ -1,7 +1,26 @@
 <?php
 
-session_start();
+ini_set("session.cookie_httponly", 1);
 
+
+session_start();
+session_name('logged in');
+
+//Send user back to homepage if already logged in
+if(isset($_SESSION['user'])) {
+    echo json_encode(array("already logged in" => true));
+    die();
+}
+
+
+$previous_ua = @$_SESSION['useragent'];
+$current_ua = $_SERVER['HTTP_USER_AGENT'];
+
+if(isset($_SESSION['useragent']) && $previous_ua !== $current_ua){
+	die("Session hijack detected");
+}else{
+	$_SESSION['useragent'] = $current_ua;
+}
     
 header("Content-Type: application/json");
 $arr = array();
@@ -14,12 +33,6 @@ $json_obj = json_decode($json_str, true);
     $email = $json_obj['email'];
     $password = $json_obj['password'];
     $passwordConfirm = $json_obj['passwordConfirm'];
-
-    //Send user back to homepage if already logged in
-    if(isset($_SESSION['user'])) {
-        echo json_encode(array("already logged in" => true));
-        die();
-    }
 
     //validate email is in correct format
     $email_regex = "/^[\w!#$%&'*+\/=?^_`{|}~-]+@([\w\-]+(?:\.[\w\-]+)+)$/";
