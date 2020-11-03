@@ -5,11 +5,12 @@ var currentYear = new Date(Date.now()).getFullYear();
 const calendar = document.getElementById('calendar-days');
 var currentEvent = '';
 
-
+//Loads calendar once DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     getUserEvents()
 })
 
+//Function to reload calendar
 function getUserEvents() {
     var arr = []
     calendar.innerHTML = '';
@@ -18,18 +19,27 @@ function getUserEvents() {
     })
     .then(res => res.json())
     .then(function(text) {
+
+        //Determine wheither use is logged in 
         if(!text.nosession) {
             var allUserEvents = [];
+
+            //Get all user events
             text.forEach(function(event) {
                 arr.push(event);
                 allUserEvents.push(event);
             })
+
+            //Draw calendar with all user events
             new Month(currentYear, currentMonth, allUserEvents).draw();
         } else {
+
+            //Draw calendar with no events
             new Month(currentYear, currentMonth, null).draw();
         }
 
-        var e = $('.event').draggable({
+        //Make events draggable
+        $('.event').draggable({
             containment: 'document',
             zIndex: 100,
             helper: 'clone',
@@ -38,15 +48,20 @@ function getUserEvents() {
             }
         });
         
+        //Make all days a droppable area
         $('.card-day').droppable({
+
+            //Changes background color of day if event is dragged over it
             over: function(event, ui) {
                 $(this).css('background-color', '#CCCCCC')
             },
 
+            //Changed background color of day back to white if event is dragged out of the day area
             out: function(event, ui) {
                 $(this).css('background-color', 'white')
             },
 
+            //Function that is called when event is dropped into certain day
             drop: function(event, ui) {
                 $(this).css('background-color', 'white')
                 $(this).append(currentEvent);
@@ -57,14 +72,14 @@ function getUserEvents() {
                 var desc = $(currentEvent).children()[4].value;
                 var color = $(currentEvent).css('background-color');
 
-                editEvent(id, title, desc, newDate, color, "asdf@asdf.com");
+                //Edit event with new day
+                editEvent(id, title, desc, newDate, color, null);
             }
         });
     });
-
-
 }
 
+//Draws the calendar for next month when button is clicked
  $('#change_month_right').click(function() {
      if(currentMonth == 11) {
         currentMonth = 0;
@@ -76,6 +91,7 @@ function getUserEvents() {
      getUserEvents()
  })
 
+ //Draws the calendar for the previous month when button clicked
  $('#change_month_left').click(function() {
     if(currentMonth == 0) {
        currentMonth = 11;
@@ -87,25 +103,17 @@ function getUserEvents() {
     getUserEvents()
 })
 
+//Day object
 function Day(date, events) {
+
+    //instance variables
     this.date = date;
     this.events = [];
     if(events != null) {
         this.events = events;
     }
 
-    this.nextDay = function() {
-        //Increment the day by 1
-        //Fetch events corresponding to the day
-        //Return a new day given prev inputs
-    }
-
-    this.prevDay = function() {
-        //Decrement the day by 1
-        //Fetch events corresponding to the day
-        //Return a new day given prev inputs
-    }
-
+    //Function to draw padding days for when first day of month does not start of Sunday
     this.drawPadding = function(node) {
         var container = document.createElement("div");
         var numberContainer = document.createElement("div");
@@ -114,25 +122,26 @@ function Day(date, events) {
         numberContainer.classList.add("day-number");
         var dayNumber = document.createElement("span");
         numberContainer.appendChild(dayNumber);
-
-        //Add events to day
-
         container.appendChild(numberContainer);
-       return container
+        return container
     }
 
+    //Function to draw all events for each day
     this.drawEvent = function(node) {
         var eventDiv = document.createElement('div');
         eventDiv.classList.add("events");
         var date = this.date;
         this.events.forEach(function(event) {
 
+            //Check if the event date matches this day
             if(new Date(date).getYear() == new Date(event.date).getYear() && new Date(date).getMonth() == new Date(event.date).getMonth() && new Date(date).getDate() == new Date(event.date).getDate()) {
                 var eventDate = event.date;
                 var eventTitle = event.title;
                 var color = event.color;
                 var id = event.id;
                 var description = event.description;
+
+                //Create event document structure
                 var event = document.createElement('div');
                 var title = document.createElement("p");
                 var time = document.createElement("p");
@@ -157,150 +166,161 @@ function Day(date, events) {
                 fullDate.style.cssText = "display: none";
                 desc.style.cssText = "display: none";
 
+                //Add event to the day structure
                 event.appendChild(title);
                 event.appendChild(time);
                 event.appendChild(idInput);
                 event.appendChild(fullDate);
                 event.appendChild(desc)
-
-
                 eventDiv.appendChild(event);
 
+                //Adds a click listener to the event. Shows edit event modal when event is clicked. Passes event information to the modal
                 event.addEventListener('click', function() {
                     var title = this.childNodes[0].innerHTML;
                     var id = this.childNodes[2].value;
                     var date = this.childNodes[3].value;
                     var desc = this.childNodes[4].value;
                     var descReplace = date.replace(/ /g, 'T')
-                    // MAY THROW ERROR LATER WITH COLOR
                     var color = $(this).css('background-color');
+
+                    //Passes event information to modal
                     document.getElementById('edit-event-title').value = title
                     document.getElementById('edit-event-description').innerText = desc
                     document.getElementById('edit-event-date').value = descReplace;
                     document.getElementById('edit-event-id').value = id;
                     document.getElementById('delete-event-id').value = id;
-
-                    //May throw error later
                     document.getElementById('edit-event-color').value = color;
+
+                    //Shows edit event modal
                     hideEventEditError()
                     $("#edit-event-modal").modal('show');
-
-                    
                 })
-
-
-               
             }
         })
+
+        //Appends entire events structure to the day structure
         node.appendChild(eventDiv)
     }
 
+    //Function to draw day 
     this.draw = function(node) {
+
+        //Create structure for day
         var container = document.createElement("div");
         var numberContainer = document.createElement("div");
         container.classList.add("card-day");
         container.classList.add("col-sm-1");
         numberContainer.classList.add("day-number");
         var dayNumber = document.createElement("span");
+
+        //Add day number
         dayNumber.innerText = new Date(date).getDate();
         numberContainer.appendChild(dayNumber);
+        container.appendChild(numberContainer);
 
         //Add events to day
-
-        container.appendChild(numberContainer);
         this.drawEvent(container);
-       return container
+
+        //Return structure representing the day
+        return container
     }
 }
 
 
 
-
+//Week object
 function Week(days, events) {
+
+    //Instance variables
     this.days = days;
     this.events = events;
 
+    //Returns the day specified
     this.getDay = function(day){
         return days[day];
     }
 
-    this.nextWeek = function() {
-
-    }
-
-    this.prevWeek = function() {
-
-    }
-
+    //Function to draw a week
     this.draw = function(days) {
+
+        //Create week structure
         var row = document.createElement("div");
         row.classList.add('row');
+        
+        //Calculate the amount of padding days needed || ONLY FOR FIRST WEEK
         if(new Date(this.days[0].date).getDay() != 0) {
             for(var i = 0; i < new Date(this.days[0].date).getDay(); i++) {
+
+                //Add padding days
                 row.appendChild(this.days[0].drawPadding(row))
             }
         }
         
+        //Add all days structure to week structure
         this.days.forEach(function(day) {
             row.appendChild(day.draw(row))
         })
+
+        //Add week structure to the full calendar
         calendar.appendChild(row);
     }
 }
 
-
+//Month object
 function Month(year, month, events) {
+
+    //Instance variables
     this.year = year;
     this.month = month
     this.weeks = [];
     this.days = [];
     this.events = events
 
+    //Function to initialize month
     this.initialize = function() {
 
+        //Get the last day in month
         var date = new Date(year, month + 1, 0);
         var daysReverse = [];
         var weekDays = [];
         var counter = 1;
+
+        //Push all days in month into an array
         while (date.getMonth() === month) {
           daysReverse.push(new Date(date));
           date.setDate(date.getDate() - 1);
           counter++;
         }
 
+        //Push all days from array into days variable in reverse order
         for(var i = daysReverse.length - 1; i >= 0; i--) {
+
+            //Push days into day array
             this.days.push(daysReverse[i])
+
+            //Push day into week array
             weekDays.push(new Day(new Date(daysReverse[i]), this.events));
+
+            //If day is a saturday start a new week (resets week array)
             if(new Date(daysReverse[i]).getDay() == 6) {
                 this.weeks.push(weekDays);
                 weekDays = [];
             }
         }
 
-
+        //push push final week into weeks array
         this.weeks.push(weekDays);
     }
 
-    this.getWeek = function(week) {
-
-    }
-
-    this.nextMonth = function() {
-
-    }
-
-    this.prevMonth = function() {
-
-    }
-
+    //Function to draw week
     this.draw = function() {
         this.initialize();
 
+        //Draw name for month and year
         var month = document.getElementById('month');
         month.innerText = monthNames[this.month] + " " + this.year;
 
-        
-
+        //Draw each week in month
         this.weeks.forEach(function(week) {
             if(week.length > 0) {
                 var weekObj = new Week(week);
@@ -308,5 +328,4 @@ function Month(year, month, events) {
             }
         })
     }
-
 }
